@@ -10,7 +10,7 @@ export default class MainScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {loading: true};
+    this.state = {loading: true, loadingCategories: true, categories: []};
     this.button = React.createRef();
   }
 
@@ -19,7 +19,32 @@ export default class MainScreen extends React.Component {
       Roboto: require("native-base/Fonts/Roboto.ttf"),
       Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf")
     });
-    this.setState({ loading: false });
+    this.fetchCategories();
+    // this.setState({ loading: false });
+  }
+
+  fetchCategories = () => {
+    const url = "https://opentdb.com/api_category.php";
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //console.log(responseJson.trivia_categories);
+        //console.log(responseJson.trivia_categories.sort(this.compare));
+        this.setState({categories: responseJson.trivia_categories.sort(this.compare), loading: false})
+      })
+      .catch((error) => {
+        Alert.alert(error);
+      });
+  }
+
+  //Sorting objects alphabeticaly based on name
+  compare(a,b) {
+    if (a.name < b.name)
+      return -1;
+    if (a.name > b.name)
+      return 1;
+    return 0;
   }
 
   render() {
@@ -35,7 +60,7 @@ export default class MainScreen extends React.Component {
           
           <Text>Trivia Quiz!</Text>          
 
-          <Button info block style={styles.button} onPress={() => navigate("ChooseCategory")}>
+          <Button info block style={styles.button} onPress={() => navigate("ChooseCategory", {categories: this.state.categories})}>
             <Text>Play!</Text>
           </Button>
          

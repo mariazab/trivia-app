@@ -15,6 +15,7 @@ export default class ChooseDifficulty extends React.Component {
     componentDidMount() {
       const params = this.props.navigation.state.params;
       const index = params.id;
+      //If the chosen category isn't random, get the category id
       if(index >= 0) {
         console.log(params.categories[index].id);
         this.setState({chosenCategory: params.categories[index].id})

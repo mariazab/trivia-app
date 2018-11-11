@@ -11,11 +11,13 @@ export default class ChooseCategory extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {categories: ["random"], loading: true};
+    this.state = {categories: [], loading: true};
   }
 
   componentDidMount() {
-    this.fetchCategories();
+    //this.fetchCategories();
+    const params = this.props.navigation.state.params;
+    this.setState({categories: params.categories})
   }
 
 
@@ -51,11 +53,11 @@ export default class ChooseCategory extends React.Component {
                         <Text>{item.name}</Text>
                     </Button>);
     
-    if (this.state.loading) {
-      return <View style={styles.loadingView}>
-        <Text>Loading categories</Text>
-        <ActivityIndicator size="large" color="#ffffff" />
-        </View>;}
+    // if (this.state.loading) {
+    //   return <View style={styles.loadingView}>
+    //     <Text>Loading categories</Text>
+    //     <ActivityIndicator size="large" color="#ffffff" />
+    //     </View>;}
 
     return (
 

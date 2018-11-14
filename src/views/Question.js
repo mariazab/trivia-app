@@ -46,15 +46,16 @@ export default class App extends React.Component {
     //console.log("Level: " + this.state.level);
 
     //Set the base url
-    let url = "https://opentdb.com/api.php?amount=10";
+    let url = "https://opentdb.com/api.php?amount=10&category=" + this.state.category;
 
-    //Create the url based on level and category
+    //Append level to the url if the level is not random
       if (this.state.level !== "random") {
-        url += "&category=" + this.state.category + "&difficulty=" + this.state.level;
+        url += "&difficulty=" + this.state.level;
       }
     
     url += "&encode=url3986";
 
+    console.log(url);
     //Fetch the questions from the created url
     this.fetchQuestions(url);
   }
@@ -65,7 +66,7 @@ export default class App extends React.Component {
     const category = params.category;
     const id = params.id;
     const level = params.levels[id];
-
+    
     this.setState({level: level, category: category});
   }
 
@@ -76,7 +77,7 @@ export default class App extends React.Component {
     fetch(url)
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson.results);
+        //console.log(responseJson.results);
 
         this.setState({questions: responseJson.results, loading: false})
         this.setCurrentQuestion();
@@ -285,7 +286,7 @@ export default class App extends React.Component {
     //After 2,5 s change the question to the next one
     setTimeout(function () {
       that.setCurrentQuestion();
-        }, 2500
+        }, 2000
     );
   }
 

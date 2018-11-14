@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Alert, StatusBar } from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body } from 'native-base';
+import { Root } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import {createStackNavigator} from 'react-navigation';
 import Question from "./src/views/Question";
@@ -14,7 +14,9 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <TriviaApp />
+      <Root>
+        <TriviaApp />
+      </Root>
     );
   }
   

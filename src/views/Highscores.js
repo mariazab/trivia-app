@@ -1,16 +1,19 @@
 import React from 'react';
-import { StyleSheet, View, Alert, StatusBar,  ActivityIndicator } from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body, Form, Item, Input, Label, List, ListItem } from 'native-base';
-import { Col, Row, Grid } from 'react-native-easy-grid';
+import { StatusBar } from 'react-native';
+import { Container, Content, Button, Text, List, ListItem, StyleProvider } from 'native-base';
+import { Col } from 'react-native-easy-grid';
 import * as firebase from 'firebase';
 import {firebaseInitApp} from '../database/firebase-config';
-import { AppLoading } from "expo";
+import LoadingScreen from '../components/LoadingScreen';
+import { commonStyle } from '../styles/commonStyle';
+import getTheme from '../../native-base-theme/components';
+import material from '../../native-base-theme/variables/material';
 
 const firebaseApp = firebaseInitApp;
 
 export default class Highscores extends React.Component {
 
-  static navigationOptions = {title: "Highscores"};
+  static navigationOptions = {header: null};
 
   constructor(props) {
     super(props);
@@ -40,7 +43,7 @@ export default class Highscores extends React.Component {
 
   //Sorting highscores by points, descending
   sortHighscores(items) {
-    const sortedData = (items).sort(function(player1, player2) {
+    let sortedData = (items).sort(function(player1, player2) {
       return player2.points - player1.points;
     });
     return sortedData;
@@ -56,75 +59,50 @@ export default class Highscores extends React.Component {
     const { navigate } = this.props.navigation;
     let index = 1;
 
+    //return LoadingScreen if the highscores are still being fetched
     if (this.state.loading) {
-      return <View style={styles.loadingView}>
-        <Text>Loading highscores</Text>
-        <ActivityIndicator size="large" color="#ffffff" />
-        </View>;}
+      return <LoadingScreen />;}
+    
     return (
-      
-      <Container>
-      {/* <StatusBar hidden={true} /> */}
-        <Content style={styles.container}>
+      <StyleProvider style={getTheme(material)}>
+        <Container>
+        {/* <StatusBar hidden={true} /> */}
+          <Content style={commonStyle.container}>
           
-          <Text>Highscores</Text>
+            <Text style={commonStyle.header}>Highscores</Text>
 
-          <List>
-            <ListItem itemHeader>
-              <Col>
-                <Text>POSITION</Text>
-              </Col>
-              <Col>
-                <Text>PLAYER</Text>
-              </Col>
-              <Col>
-                <Text>POINTS</Text>
-              </Col>
-            </ListItem>
-          </List>
-
-          <List dataArray={this.state.data}
-            renderRow={(item) =>
-              <ListItem>
+            <List>
+              <ListItem itemHeader>
                 <Col>
-                  <Text>{index++}</Text>
+                  <Text style={commonStyle.listHeader}>POSITION</Text>
                 </Col>
                 <Col>
-                  <Text>{item.player}</Text>
+                  <Text style={commonStyle.listHeader}>PLAYER</Text>
                 </Col>
                 <Col>
-                  <Text>{item.points}</Text>
+                  <Text style={commonStyle.listHeader}>POINTS</Text>
                 </Col>
-              </ListItem>}>          
+              </ListItem>
             </List>
-        </Content>
-   </Container>
 
+            <List dataArray={this.state.data}
+              renderRow={(item) =>
+                <ListItem>
+                  <Col>
+                    <Text style={commonStyle.highlightedText}>{index++}.</Text>
+                  </Col>
+                  <Col>
+                    <Text style={commonStyle.highlightedText}>{item.player}</Text>
+                  </Col>
+                  <Col>
+                  < Text style={commonStyle.highlightedText}>{item.points}</Text>
+                  </Col>
+                </ListItem>}>          
+              </List>
+
+          </Content>
+        </Container>
+      </StyleProvider>
     );
   }
-
 }
-
-const styles = StyleSheet.create({
-  loadingView: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 10
-  },
-  container: {
-   margin: "2%",
-  },
-  column: {
-    height: 120,
-    justifyContent: 'center',
-    margin: "2%",
-  },
-  form: {
-    margin: "2%",
-  },
-  button: {
-    margin: 10,
-  }
-});

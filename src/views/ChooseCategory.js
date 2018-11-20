@@ -1,13 +1,21 @@
 import React from 'react';
-import { StyleSheet, View, Alert, StatusBar, ActivityIndicator } from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body, Form } from 'native-base';
-import { Col, Row, Grid } from 'react-native-easy-grid';
-import { NavigationActions } from 'react-navigation';
-import { AppLoading } from "expo";
+import { Alert, StatusBar } from 'react-native';
+import { Container, Content, Button, Text, StyleProvider } from 'native-base';
+import { commonStyle } from '../styles/commonStyle';
+import getTheme from '../../native-base-theme/components';
+import material from '../../native-base-theme/variables/material';
 
 export default class ChooseCategory extends React.Component {
 
-  static navigationOptions = {title: "Category"};
+  static navigationOptions = {header: null};
+  // static navigationOptions = {
+  //   title: "Category", 
+  //   headerStyle: {
+  //     height: 40, 
+  //     backgroundColor: '#38b6ff', 
+  //     borderWidth: 0
+  //   }
+  // };
 
   constructor(props) {
     super(props);
@@ -49,51 +57,34 @@ export default class ChooseCategory extends React.Component {
     const { navigate } = this.props.navigation;
 
     let buttons = this.state.categories.map((item, index) => 
-                    <Button info block style={styles.button} key={index} onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: index})} >
+                    <Button dark 
+                            rounded 
+                            block 
+                            style={commonStyle.button} 
+                            key={index} 
+                            onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: index})} >
+
                         <Text>{item.name}</Text>
+
                     </Button>);
-    
-    // if (this.state.loading) {
-    //   return <View style={styles.loadingView}>
-    //     <Text>Loading categories</Text>
-    //     <ActivityIndicator size="large" color="#ffffff" />
-    //     </View>;}
 
     return (
+      <StyleProvider style={getTheme(material)}>
+        <Container>
+        {/* <StatusBar hidden={true} /> */}
+          <Content style={commonStyle.container}>
 
-      <Container>
-      {/* <StatusBar hidden={true} /> */}
-        <Content style={styles.container}>
-          <Text>Choose category</Text>
-          <Button info block style={styles.button} onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: -1})} >
-            <Text>Random</Text>
-          </Button>
-           {buttons}
-        </Content>
-   </Container>
+            <Text style={commonStyle.header}>Choose Your Category:</Text>
 
+            <Button dark rounded block style={commonStyle.button} onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: -1})} >
+              <Text>Random</Text>
+            </Button>
+
+            {buttons}
+
+          </Content>
+        </Container>
+      </StyleProvider>
     );
   }
-
 }
-
-const styles = StyleSheet.create({
-  loadingView: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 10
-  },
-  container: {
-   margin: "2%",
-  },
-  column: {
-    height: 120,
-    justifyContent: 'center',
-    margin: "2%",
-  },
-  button: {
-    marginBottom: 10,
-  }
-});

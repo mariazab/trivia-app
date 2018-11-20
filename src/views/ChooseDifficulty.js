@@ -1,15 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, Alert, StatusBar } from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body } from 'native-base';
-import { Col, Row, Grid } from 'react-native-easy-grid';
+import { StatusBar } from 'react-native';
+import { Container, Content, Button, Text, StyleProvider } from 'native-base';
+//import { Col, Row, Grid } from 'react-native-easy-grid';
+import { commonStyle } from '../styles/commonStyle';
+import getTheme from '../../native-base-theme/components';
+import material from '../../native-base-theme/variables/material';
 
 export default class ChooseDifficulty extends React.Component {
 
-    static navigationOptions = {title: "Level"};
+    static navigationOptions = {header: null};
 
     constructor(props) {
         super(props);
-        this.state = {levels: ["easy", "medium", "hard", "random"], chosenCategory: ""};
+        this.state = {levels: ["Easy", "Medium", "Hard", "Random"], chosenCategory: ""};
     }
 
     componentDidMount() {
@@ -27,37 +30,30 @@ export default class ChooseDifficulty extends React.Component {
     const {navigate} = this.props.navigation;
 
     let buttons = this.state.levels.map((item, index) => 
-                    <Button info block style={styles.button} key={index} onPress={() => navigate('Question', {category: this.state.chosenCategory, levels: this.state.levels, id: index})} >
+                    <Button dark 
+                            rounded 
+                            block 
+                            style={commonStyle.button} 
+                            key={index} 
+                            onPress={() => navigate('Question', {category: this.state.chosenCategory, levels: this.state.levels, id: index})} >
+                        
                         <Text>{item}</Text>
+
                     </Button>);
+    
     return (
+      <StyleProvider style={getTheme(material)}>
+        <Container>
+        {/* <StatusBar hidden={true} /> */}
+          <Content style={commonStyle.container} >
 
-      <Container>
-      {/* <StatusBar hidden={true} /> */}
-      <Content style={styles.container} >
-        <Grid>
-          <Col>
-          <Text>Choose level</Text>
+            <Text style={commonStyle.header}>Choose Your Level:</Text>
+
             {buttons}
-        </Col>
-        </Grid>
-        </Content>
-   </Container>
-
+ 
+          </Content>
+        </Container>
+      </StyleProvider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-   margin: "5%",
-  },
-  column: {
-    height: 120,
-    justifyContent: 'center',
-    margin: "2%",
-  },
-  button: {
-    marginBottom: 10,
-  }
-});

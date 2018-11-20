@@ -1,15 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, Alert, StatusBar} from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body, Form, Item, Input, Label, List, ListItem, Toast } from 'native-base';
+import { StyleSheet, StatusBar} from 'react-native';
+import { Container, Content, Button, Text, Form, Item, Input, Label, List, ListItem, Toast, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import * as firebase from 'firebase';
 import {firebaseInitApp} from '../database/firebase-config';
+import { commonStyle } from '../styles/commonStyle';
+import getTheme from '../../native-base-theme/components';
+import material from '../../native-base-theme/variables/material';
 
 const firebaseApp = firebaseInitApp;
 
 export default class EndGame extends React.Component {
 
-  static navigationOptions = {title: "End"};
+  static navigationOptions = {header: null};
 
   constructor(props) {
     super(props);
@@ -43,7 +46,7 @@ export default class EndGame extends React.Component {
 
   //Sorting highscores by points, descending
   sortHighscores(items) {
-    const sortedData = (items).sort(function(player1, player2) {
+    let sortedData = (items).sort(function(player1, player2) {
       return player2.points - player1.points;
     });
     return sortedData;
@@ -166,92 +169,108 @@ export default class EndGame extends React.Component {
     let index = 1;
     let saveScoreForm;
     let saveScoreButton;
+    let gameFeedback;
     
     //If the number of points higher than 0, show input form and save button
     if (this.state.points > 0) {
+
       saveScoreForm = (
         <Form style={styles.form}>
-        <Item floatingLabel>
-          <Label>Give your name</Label>
-          <Input onChangeText={(nickname) => this.setState({nickname})} value={this.state.nickname}/>
-        </Item>
-      </Form>
+          <Item floatingLabel>
+            <Label style={{color: "#f7f6f8"}}>Type your name and save your score!</Label>
+            <Input onChangeText={(nickname) => this.setState({nickname})} value={this.state.nickname}/>
+          </Item>
+        </Form>
       );
+
       saveScoreButton = (
-          <Button info block style={styles.button} onPress={this.handleSaveClicked}>
-            <Text>Save score</Text>
-          </Button>
+        <Button dark rounded block style={commonStyle.button} onPress={this.handleSaveClicked}>
+          <Text>Save score</Text>
+        </Button>
       );
+
+      if (this.state.points > 19 && this.state.points < 45) {
+
+        gameFeedback = (<Text style={commonStyle.header}>Great!</Text>);
+
+      } else if (this.state.points > 45) {
+
+        gameFeedback = (<Text style={commonStyle.header}>Awesome!</Text>);
+
+      } else {
+
+        gameFeedback = (<Text style={commonStyle.header}>Nice!</Text>);
+        
+      }
+
     } else {
-      saveScoreForm = (
-        <Text>Ups! Better luck next time!</Text>
-      );
+
+      gameFeedback = (<Text style={commonStyle.header}>Ups!{"\n"}Maybe next time!</Text>);
+
       saveScoreButton = (
-        <Button info block style={styles.button} onPress={()=>navigate('ChooseCategory')}>
+        <Button dark rounded block style={commonStyle.button} onPress={()=>navigate('ChooseCategory')}>
           <Text>Try again!</Text>
         </Button>
-    );
+      );
+
     }
 
     return (
-
-      <Container>
-      {/* <StatusBar hidden={true} /> */}
-        <Content style={styles.container}>
+      <StyleProvider style={getTheme(material)}>
+        <Container>
+          {/* <StatusBar hidden={true} /> */}
+          <Content style={commonStyle.container}>
           
-          <Text>The end!</Text>
+            {gameFeedback}
          
-          <Text>Points: {this.state.points}</Text>
+            <Text style={commonStyle.highlightedText}>Points: {this.state.points}</Text>
           
-          
-          {saveScoreForm}
-          {saveScoreButton}
+            {saveScoreForm}
+            {saveScoreButton}
                    
-          <Button info block style={styles.button} onPress={()=>navigate('Home')}>
-            <Text>Back to main screen</Text>
-          </Button>
+            <Button dark rounded block style={commonStyle.button} onPress={()=>navigate('Home')}>
+              <Text>Back to main screen</Text>
+            </Button>
 
-          <List>
-            <ListItem itemHeader>
-              <Col>
-                <Text>POSITION</Text>
-              </Col>
-              <Col>
-                <Text>PLAYER</Text>
-              </Col>
-              <Col>
-                <Text>POINTS</Text>
-              </Col>
-            </ListItem>
-          </List>
+            {/* <List>
+              <ListItem itemHeader>
+                <Col>
+                  <Text>POSITION</Text>
+                </Col>
+                <Col>
+                  <Text>PLAYER</Text>
+                </Col>
+                <Col>
+                  <Text>POINTS</Text>
+                </Col>
+              </ListItem>
+            </List> */}
 
-          <List dataArray={this.state.topThree}
-            renderRow={(item) =>
-              <ListItem>
+            <Text style={commonStyle.highlightedText}>Highscores</Text>
+
+            <List dataArray={this.state.topThree}
+              renderRow={(item) =>
+                <ListItem>
                   <Col>
-                    <Text>{index++}</Text>
+                    <Text style={commonStyle.highlightedText}>{index++}.</Text>
                   </Col>
                   <Col>
-                    <Text>{item.player}</Text>
+                    <Text style={commonStyle.highlightedText}>{item.player}</Text>
                   </Col>
                   <Col>
-                    <Text>{item.points}</Text>
+                    <Text style={commonStyle.highlightedText}>{item.points}</Text>
                   </Col>
-              </ListItem>}>          
+                </ListItem>}>          
             </List>
         
-        </Content>
-   </Container>
-
+          </Content>
+        </Container>
+      </StyleProvider>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
-  container: {
-   margin: "2%",
-  },
   column: {
     height: 120,
     justifyContent: 'center',
@@ -260,8 +279,4 @@ const styles = StyleSheet.create({
   form: {
     margin: "2%",
   },
-  button: {
-    margin: 10,
-  }
 });
-

@@ -1,12 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, Alert, StatusBar } from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body, Form, Item, Input, Label } from 'native-base';
+import { Alert, StatusBar, Image } from 'react-native';
+import { Container, Content, Button, Text, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import { Font, AppLoading } from "expo";
+//import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { commonStyle } from '../styles/commonStyle';
+import getTheme from '../../native-base-theme/components';
+import material from '../../native-base-theme/variables/material';
 
 export default class MainScreen extends React.Component {
 
-  static navigationOptions = {title: "Trivia App"};
+  static navigationOptions = {header: null};
 
   constructor(props) {
     super(props);
@@ -17,10 +21,17 @@ export default class MainScreen extends React.Component {
   async componentWillMount() {
     await Font.loadAsync({
       Roboto: require("native-base/Fonts/Roboto.ttf"),
-      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf")
+      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+      'Raleway-Regular': require('../../assets/fonts/Raleway-Regular.ttf'),
+      'Atma-SemiBold': require('../../assets/fonts/Atma-SemiBold.ttf'),
     });
-    this.fetchCategories();
-    // this.setState({ loading: false });
+    let that = this;
+
+     //After 1,5 s fetch the categories and set loading to false
+     setTimeout(function () {
+      that.fetchCategories();
+        }, 1500
+    );
   }
 
   fetchCategories = () => {
@@ -49,59 +60,56 @@ export default class MainScreen extends React.Component {
 
   render() {
     const { navigate } = this.props.navigation;
+    const uri = "../../assets/icon.png";
 
     if (this.state.loading) {
       return <AppLoading />;}
     return (
+      <StyleProvider style={getTheme(material)}>
+        <Container>
+          <StatusBar hidden={true} />
+          <Content style={commonStyle.container}>
+            <Grid>
+              <Col style={commonStyle.content}>
 
-      <Container>
-      {/* <StatusBar hidden={true} /> */}
-        <Content style={styles.container}>
-          
-          <Text>Trivia Quiz!</Text>          
+                <Row>
+                  <Image style={commonStyle.logo} source={require('../../assets/icon.png')} />
+                </Row>
 
-          <Button info block style={styles.button} onPress={() => navigate("ChooseCategory", {categories: this.state.categories})}>
-            <Text>Play!</Text>
-          </Button>
-         
-          <Button info block style={styles.button} onPress={()=>navigate('Highscores')}>
-            <Text>See highscores</Text>
-          </Button>
+                <Row>
+                  <Button dark 
+                          rounded 
+                          block 
+                          style={commonStyle.button} 
+                          onPress={() => navigate("ChooseCategory", {categories: this.state.categories})}>
+                    <Text>PLAY!</Text>
+                  </Button>
+                </Row>
+
+                <Row>
+                  <Button dark 
+                          rounded 
+                          block 
+                          style={commonStyle.button} 
+                          onPress={()=>navigate('Highscores')}>
+                    <Text>SEE HIGHSCORES</Text>
+                  </Button>
+                </Row>
+
+              </Col>
+            </Grid>
+
+          {/* <AnimatedCircularProgress
+              size={120}
+              width={3}
+              fill={200}
+              tintColor="#00e0ff"
+              onAnimationComplete={() => console.log('onAnimationComplete')}
+              backgroundColor="#3d5875" /> */}
         
-        </Content>
-   </Container>
-
+          </Content>
+        </Container>
+      </StyleProvider>
     );
   }
-
 }
-
-const styles = StyleSheet.create({
-  container: {
-   margin: "2%",
-  },
-  column: {
-    height: 120,
-    justifyContent: 'center',
-    margin: "2%",
-  },
-  form: {
-    margin: "2%",
-  },
-  button: {
-    margin: 10,
-  },
-  normalButton: {
-    backgroundColor: "blue"
-  },
-  selectedButton: {
-    backgroundColor: "#EDE337"
-  },
-  correctButton: {
-    backgroundColor: "#0BCB00"
-  },
-  wrongButton: {
-    backgroundColor: "#E50F00"
-  }
-
-});

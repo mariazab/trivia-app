@@ -1,17 +1,17 @@
 import React from 'react';
-import { StyleSheet, View, Alert, StatusBar, ActivityIndicator } from 'react-native';
-import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body } from 'native-base';
+import { StyleSheet, Alert, StatusBar, } from 'react-native';
+import { Container, Content, Button, Card, CardItem, Text, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import {NavigationActions} from 'react-navigation';
-import { AppLoading } from "expo";
+import LoadingScreen from '../components/LoadingScreen';
 import MultipleQuestion from '../components/MultipleQuestion';
 import BooleanQuestion from '../components/BooleanQuestion';
-import ChooseDifficulty from './ChooseDifficulty';
-import ChooseCategory from './ChooseCategory';
+import getTheme from '../../native-base-theme/components';
+import material from '../../native-base-theme/variables/material';
 
 export default class App extends React.Component {
 
-  static navigationOptions = {title: "Question"};
+  static navigationOptions = {header: null};
 
   constructor(props) {
     super(props);
@@ -67,7 +67,7 @@ export default class App extends React.Component {
     const id = params.id;
     const level = params.levels[id];
     
-    this.setState({level: level, category: category});
+    this.setState({level: level.toLowerCase(), category: category});
   }
 
   //Fetch the questions and save them
@@ -356,62 +356,74 @@ export default class App extends React.Component {
 
     //Show loading screen, if the questions are still being fetched
     if (this.state.loading) {
-      return <View style={styles.loadingView}>
-        <Text>Loading questions</Text>
-        <ActivityIndicator size="large" color="#ffffff" />
-        </View>;}
+      return <LoadingScreen />;}
 
     return (
-      <Container>
-      {/* <StatusBar hidden={true} /> */}
-        <Grid style={styles.container}>
-          <Col>
-            <Text>Category: {this.state.currentCategory} </Text>
-            <Text>Level: {this.state.currentLevel} </Text>
-            <Card>
-              <CardItem header>
-                <Text>{this.state.currentQuestion}</Text>
-              </CardItem>
-            </Card>
-            {answersGrid}
+      <StyleProvider style={getTheme(material)}>
+        <Container>
+        {/* <StatusBar hidden={true} /> */}
+          <Grid style={styles.container}>
+            <Col>
+              <Text style={styles.header}>Question {this.state.counter}/10</Text>
 
-         {/* Next button only for testing purposes, to be deleted... */}
-        <Button onPress={()=>navigate('End', {points: this.state.points})}>
+              <Card>
+                <CardItem header bordered>
+                  <Col>
+                    <Text>Category: {this.state.currentCategory} </Text>
+                  </Col>
+                  <Col style={{width: 20}}></Col>
+                  <Col style={styles.cardColumn2}>
+                    <Text>Level: {this.state.currentLevel} </Text>
+                    <Text>Points: {this.state.points} </Text>
+                  </Col>
+                </CardItem>
+                <CardItem header bordered>
+                  <Text>{this.state.currentQuestion}</Text>
+                </CardItem>
+              </Card>
+              
+              {answersGrid}
+
+            </Col>
+          </Grid>
+
+          {/* Next button only for testing purposes, to be deleted... */}
+          <Button onPress={()=>navigate('End', {points: this.state.points})}>
             <Text>Next</Text>
           </Button>
-          </Col>
-        </Grid>
-   </Container>
+        </Container>
+      </StyleProvider>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  loadingView: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: 10
-  },
   container: {
-   justifyContent: 'center',
-   margin: "5%",
+   margin: "2%",
   },
-  column: {
-    height: 120,
-    justifyContent: 'center',
-    margin: "2%",
+  cardColumn1: {
+    marginRight: "5%",
+    marginLeft: 0,
+  },
+  cardColumn2: {
+    marginLeft: "5%",
   },
   button: {
     height: 120,
     width: 120,
     justifyContent: 'center',
   },
+  header: {
+    fontFamily: 'Atma-SemiBold',
+    color: '#FFDE59',
+    fontSize: 38,
+    margin: '2%',
+    textAlign: 'center',
+  },
   normalButton: {
     height: 120,
     width: 120,
-    backgroundColor: "blue"
+    backgroundColor: "black"
   },
   selectedButton: {
     height: 120,

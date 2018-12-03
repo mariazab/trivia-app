@@ -1,59 +1,77 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
-import { Container, Content, Button, Text, StyleProvider } from 'native-base';
-//import { Col, Row, Grid } from 'react-native-easy-grid';
+import { StatusBar, ImageBackground, TouchableOpacity } from 'react-native';
+import { Container, Content, Button, Text, StyleProvider, Icon, Header, Left, Body, Title } from 'native-base';
+import { LinearGradient } from "expo";
 import { commonStyle } from '../styles/commonStyle';
+import {themeColors, opacity} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
 
 export default class ChooseDifficulty extends React.Component {
 
-    static navigationOptions = {header: null};
+  static navigationOptions = {header: null};
 
-    constructor(props) {
-        super(props);
-        this.state = {levels: ["Easy", "Medium", "Hard", "Random"], chosenCategory: ""};
-    }
+  constructor(props) {
+      super(props);
+      this.state = {levels: ["Random Levels", "Easy", "Medium", "Hard"], chosenCategory: ""};
+  }
 
-    componentDidMount() {
-      const params = this.props.navigation.state.params;
-      const index = params.id;
-      //If the chosen category isn't random, get the category id
-      if(index >= 0) {
-        console.log(params.categories[index].id);
-        this.setState({chosenCategory: params.categories[index].id})
-      }
+  componentDidMount() {
+    const params = this.props.navigation.state.params;
+    const categoryId = params.id;
+    //If the chosen category isn't random, get the category id
+    if(categoryId >= 0) {
+      console.log(categoryId);
+      this.setState({chosenCategory: categoryId})
     }
+  }
 
   render() {
-
     const {navigate} = this.props.navigation;
 
     let buttons = this.state.levels.map((item, index) => 
-                    <Button dark 
-                            rounded 
-                            block 
-                            style={commonStyle.button} 
-                            key={index} 
-                            onPress={() => navigate('Question', {category: this.state.chosenCategory, levels: this.state.levels, id: index})} >
-                        
-                        <Text>{item}</Text>
+          <TouchableOpacity 
+              activeOpacity={opacity}
+              style={commonStyle.listButtons} 
+              key={index} 
+              onPress={() => navigate('Question', {category: this.state.chosenCategory, levels: this.state.levels, id: index})} >
 
-                    </Button>);
+                <LinearGradient
+                    colors={[themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark]}
+                    style={commonStyle.linearGradient}>
+
+                      <Text style={commonStyle.buttonText}>{item}</Text>
+
+                </LinearGradient>
+
+          </TouchableOpacity>);
     
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
-        {/* <StatusBar hidden={true} /> */}
-          <Content style={commonStyle.container} >
+          <ImageBackground source={require('../../assets/background2.png')} style={{width: '100%', height: '100%'}} >
+          {/* <StatusBar hidden={true} /> */}
 
-            <Text style={commonStyle.header}>Choose Your Level:</Text>
+          <Header transparent style={{height: 120}} >
+            <Left>
+              <Button transparent onPress={() => navigate("ChooseCategory")}>
+                <Icon name="arrow-back" style={{color: themeColors.secondaryColor}}/>
+              </Button>
+            </Left>
+            <Body>
+              <Title style={commonStyle.header}>Choose Your</Title>
+              <Title style={commonStyle.header}>Level:</Title>
+            </Body>
+          </Header>
+          
+          <Content style={commonStyle.container} >
 
             {buttons}
  
           </Content>
-        </Container>
-      </StyleProvider>
+        </ImageBackground>
+      </Container>
+    </StyleProvider>
     );
   }
 }

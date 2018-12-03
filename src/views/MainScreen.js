@@ -1,10 +1,11 @@
 import React from 'react';
-import { Alert, StatusBar, Image } from 'react-native';
+import { Alert, StatusBar, Image, ImageBackground, TouchableOpacity, Easing } from 'react-native';
 import { Container, Content, Button, Text, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
-import { Font, AppLoading } from "expo";
-//import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { Font, AppLoading, LinearGradient } from "expo";
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { commonStyle } from '../styles/commonStyle';
+import {themeColors, opacity} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
 
@@ -14,8 +15,8 @@ export default class MainScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {loading: true, loadingCategories: true, categories: []};
-    this.button = React.createRef();
+    this.state = {loading: true, categories: []};
+
   }
 
   async componentWillMount() {
@@ -23,15 +24,18 @@ export default class MainScreen extends React.Component {
       Roboto: require("native-base/Fonts/Roboto.ttf"),
       Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
       'Raleway-Regular': require('../../assets/fonts/Raleway-Regular.ttf'),
+      'Raleway-SemiBold': require('../../assets/fonts/Raleway-SemiBold.ttf'),
       'Atma-SemiBold': require('../../assets/fonts/Atma-SemiBold.ttf'),
     });
     let that = this;
-
+    
      //After 1,5 s fetch the categories and set loading to false
-     setTimeout(function () {
-      that.fetchCategories();
-        }, 1500
-    );
+    //  setTimeout(function () {
+    //   that.fetchCategories();
+    //     }, 1500
+    // );
+
+    this.fetchCategories();
   }
 
   fetchCategories = () => {
@@ -64,50 +68,46 @@ export default class MainScreen extends React.Component {
 
     if (this.state.loading) {
       return <AppLoading />;}
+
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
-          <StatusBar hidden={true} />
-          <Content style={commonStyle.container}>
-            <Grid>
-              <Col style={commonStyle.content}>
+          <ImageBackground source={require('../../assets/background2.png')} style={{width: '100%', height: '100%'}} >
+            <StatusBar hidden={true} />
+            <Content style={commonStyle.container}>
 
-                <Row>
-                  <Image style={commonStyle.logo} source={require('../../assets/icon.png')} />
-                </Row>
+              <Image style={commonStyle.logo} source={require('../../assets/icon-transp.png')} />
 
-                <Row>
-                  <Button dark 
-                          rounded 
-                          block 
-                          style={commonStyle.button} 
-                          onPress={() => navigate("ChooseCategory", {categories: this.state.categories})}>
-                    <Text>PLAY!</Text>
-                  </Button>
-                </Row>
+              <TouchableOpacity 
+                  activeOpacity={opacity}
+                  style={commonStyle.button} 
+                  onPress={() => navigate("ChooseCategory", {categories: this.state.categories})}>
+                  
+                    <LinearGradient
+                        colors={[themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark]}
+                        style={commonStyle.linearGradient}>
+                        
+                          <Text style={commonStyle.buttonText}>PLAY!</Text>
+                        
+                    </LinearGradient>
+              </TouchableOpacity>
 
-                <Row>
-                  <Button dark 
-                          rounded 
-                          block 
-                          style={commonStyle.button} 
-                          onPress={()=>navigate('Highscores')}>
-                    <Text>SEE HIGHSCORES</Text>
-                  </Button>
-                </Row>
+              <TouchableOpacity 
+                  activeOpacity={opacity}
+                  style={commonStyle.button} 
+                  onPress={()=>navigate('Highscores')}>
+                    
+                    <LinearGradient
+                        colors={[themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark]}
+                        style={commonStyle.linearGradient}>
+                          
+                          <Text style={commonStyle.buttonText}>SEE HIGHSCORES</Text>
+                          
+                    </LinearGradient>
+              </TouchableOpacity>
 
-              </Col>
-            </Grid>
-
-          {/* <AnimatedCircularProgress
-              size={120}
-              width={3}
-              fill={200}
-              tintColor="#00e0ff"
-              onAnimationComplete={() => console.log('onAnimationComplete')}
-              backgroundColor="#3d5875" /> */}
-        
-          </Content>
+            </Content>
+          </ImageBackground>
         </Container>
       </StyleProvider>
     );

@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet, StatusBar} from 'react-native';
+import { StyleSheet, StatusBar, Alert, ImageBackground, TouchableOpacity} from 'react-native';
 import { Container, Content, Button, Text, Form, Item, Input, Label, List, ListItem, Toast, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
+import { LinearGradient } from 'expo';
 import * as firebase from 'firebase';
 import {firebaseInitApp} from '../database/firebase-config';
 import { commonStyle } from '../styles/commonStyle';
+import {themeColors, opacity} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
 
@@ -150,7 +152,7 @@ export default class EndGame extends React.Component {
         Toast.show({
           text: "Error updating data",
           buttonText: "OK",
-          type: "success",
+          type: "danger",
           duration: 3000
         });
       } else {
@@ -171,46 +173,54 @@ export default class EndGame extends React.Component {
     let saveScoreButton;
     let gameFeedback;
     
-    //If the number of points higher than 0, show input form and save button
+    //If the number of points higher than 0, show input form and save button f7f6f8
     if (this.state.points > 0) {
 
       saveScoreForm = (
-        <Form style={styles.form}>
+        <Form style={commonStyle.form}>
           <Item floatingLabel>
-            <Label style={{color: "#f7f6f8"}}>Type your name and save your score!</Label>
+            <Label style={{color: "#fff"}}>Type your name and save your score!</Label>
             <Input onChangeText={(nickname) => this.setState({nickname})} value={this.state.nickname}/>
           </Item>
         </Form>
       );
 
       saveScoreButton = (
-        <Button dark rounded block style={commonStyle.button} onPress={this.handleSaveClicked}>
-          <Text>Save score</Text>
-        </Button>
+        <TouchableOpacity activeOpacity={opacity} style={commonStyle.button} onPress={this.handleSaveClicked}>
+          <LinearGradient
+              colors={[themeColors.secondaryColorDark, themeColors.secondaryColor, themeColors.secondaryColorDark]}
+              style={commonStyle.linearGradient}>
+                <Text style={commonStyle.darkButtonText}>SAVE SCORE</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       );
 
       if (this.state.points > 19 && this.state.points < 45) {
 
-        gameFeedback = (<Text style={commonStyle.header}>Great!</Text>);
+        gameFeedback = (<Text style={commonStyle.gameFeedback}>Great!</Text>);
 
       } else if (this.state.points > 45) {
 
-        gameFeedback = (<Text style={commonStyle.header}>Awesome!</Text>);
+        gameFeedback = (<Text style={commonStyle.gameFeedback}>Awesome!</Text>);
 
       } else {
 
-        gameFeedback = (<Text style={commonStyle.header}>Nice!</Text>);
+        gameFeedback = (<Text style={commonStyle.gameFeedback}>Nice!</Text>);
         
       }
 
     } else {
 
-      gameFeedback = (<Text style={commonStyle.header}>Ups!{"\n"}Maybe next time!</Text>);
+      gameFeedback = (<Text style={commonStyle.gameFeedback}>Ups!{"\n"}Maybe next time!</Text>);
 
       saveScoreButton = (
-        <Button dark rounded block style={commonStyle.button} onPress={()=>navigate('ChooseCategory')}>
-          <Text>Try again!</Text>
-        </Button>
+        <TouchableOpacity activeOpacity={opacity} style={commonStyle.button} onPress={()=>navigate('ChooseCategory')}>
+          <LinearGradient
+              colors={[themeColors.secondaryColorDark, themeColors.secondaryColor, themeColors.secondaryColorDark]}
+              style={commonStyle.linearGradient}>
+                <Text style={commonStyle.darkButtonText}>TRY AGAIN</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       );
 
     }
@@ -218,65 +228,46 @@ export default class EndGame extends React.Component {
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
-          {/* <StatusBar hidden={true} /> */}
-          <Content style={commonStyle.container}>
+          <ImageBackground source={require('../../assets/background2.png')} style={{width: '100%', height: '100%'}} >
+            {/* <StatusBar hidden={true} /> */}
+            <Content style={commonStyle.container}>
           
-            {gameFeedback}
+              {gameFeedback}
          
-            <Text style={commonStyle.highlightedText}>Points: {this.state.points}</Text>
+              <Text style={commonStyle.highlightedText}>Points: {this.state.points}</Text>
           
-            {saveScoreForm}
-            {saveScoreButton}
+              {saveScoreForm}
+              {saveScoreButton}
                    
-            <Button dark rounded block style={commonStyle.button} onPress={()=>navigate('Home')}>
-              <Text>Back to main screen</Text>
-            </Button>
+              <TouchableOpacity activeOpacity={opacity} style={commonStyle.button} onPress={()=>navigate('Home')}>
+                <LinearGradient
+                    colors={[themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark]}
+                    style={commonStyle.linearGradient}>
+                      <Text style={commonStyle.buttonText}>BACK TO MAIN SCREEN</Text>
+                </LinearGradient>
+              </TouchableOpacity>
 
-            {/* <List>
-              <ListItem itemHeader>
-                <Col>
-                  <Text>POSITION</Text>
-                </Col>
-                <Col>
-                  <Text>PLAYER</Text>
-                </Col>
-                <Col>
-                  <Text>POINTS</Text>
-                </Col>
-              </ListItem>
-            </List> */}
+              <Text style={commonStyle.highlightedText}>Highscores</Text>
 
-            <Text style={commonStyle.highlightedText}>Highscores</Text>
-
-            <List dataArray={this.state.topThree}
-              renderRow={(item) =>
-                <ListItem>
-                  <Col>
-                    <Text style={commonStyle.highlightedText}>{index++}.</Text>
-                  </Col>
-                  <Col>
-                    <Text style={commonStyle.highlightedText}>{item.player}</Text>
-                  </Col>
-                  <Col>
-                    <Text style={commonStyle.highlightedText}>{item.points}</Text>
-                  </Col>
-                </ListItem>}>          
-            </List>
+              <List dataArray={this.state.topThree}
+                  renderRow={(item) =>
+                    <ListItem>
+                      <Col>
+                        <Text style={commonStyle.highlightedText}>{index++}.</Text>
+                      </Col>
+                      <Col>
+                        <Text style={commonStyle.highlightedText}>{item.player}</Text>
+                      </Col>
+                      <Col>
+                        <Text style={commonStyle.highlightedText}>{item.points}</Text>
+                      </Col>
+                    </ListItem>}>          
+              </List>
         
-          </Content>
+            </Content>
+          </ImageBackground>
         </Container>
       </StyleProvider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  column: {
-    height: 120,
-    justifyContent: 'center',
-    margin: "2%",
-  },
-  form: {
-    margin: "2%",
-  },
-});

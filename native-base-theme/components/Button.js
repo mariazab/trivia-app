@@ -220,7 +220,7 @@ export default (variables /*: * */ = variable) => {
 
     ".block": {
       justifyContent: "center",
-      alignSelf: "stretch"
+      alignSelf: "stretch",
     },
 
     ".full": {

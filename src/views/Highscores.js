@@ -1,11 +1,12 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
-import { Container, Content, Button, Text, List, ListItem, StyleProvider } from 'native-base';
+import { StatusBar, ImageBackground } from 'react-native';
+import { Container, Content, Button, Text, List, ListItem, StyleProvider, Icon, Header, Left, Right, Body, Title  } from 'native-base';
 import { Col } from 'react-native-easy-grid';
 import * as firebase from 'firebase';
 import {firebaseInitApp} from '../database/firebase-config';
 import LoadingScreen from '../components/LoadingScreen';
 import { commonStyle } from '../styles/commonStyle';
+import {themeColors} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
 
@@ -20,7 +21,6 @@ export default class Highscores extends React.Component {
     this.itemsRef = firebaseApp.database().ref('scores');
     this.state = {data: [], loading: true};
   }
-
 
   //Get data from the database
   getData(itemsRef) {
@@ -49,11 +49,9 @@ export default class Highscores extends React.Component {
     return sortedData;
   }
 
-
   componentDidMount() {
     this.getData(this.itemsRef);
   }
-
 
   render() {
     const { navigate } = this.props.navigation;
@@ -66,41 +64,53 @@ export default class Highscores extends React.Component {
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
-        {/* <StatusBar hidden={true} /> */}
-          <Content style={commonStyle.container}>
+          <ImageBackground source={require('../../assets/background2.png')} style={{width: '100%', height: '100%'}} >
+            {/* <StatusBar hidden={true} /> */}
+        
+            <Header transparent>
+              <Left>
+                <Button transparent onPress={() => navigate("Home")}>
+                  <Icon name="arrow-back" style={{color: themeColors.secondaryColor}}/>
+                </Button>
+              </Left>
+              <Body>
+                <Title style={commonStyle.header}>Highscores</Title>
+              </Body>
+            </Header>
           
-            <Text style={commonStyle.header}>Highscores</Text>
-
-            <List>
-              <ListItem itemHeader>
-                <Col>
-                  <Text style={commonStyle.listHeader}>POSITION</Text>
-                </Col>
-                <Col>
-                  <Text style={commonStyle.listHeader}>PLAYER</Text>
-                </Col>
-                <Col>
-                  <Text style={commonStyle.listHeader}>POINTS</Text>
-                </Col>
-              </ListItem>
-            </List>
-
-            <List dataArray={this.state.data}
-              renderRow={(item) =>
-                <ListItem>
+            <Content style={commonStyle.container}>
+          
+              <List>
+                <ListItem itemHeader>
                   <Col>
-                    <Text style={commonStyle.highlightedText}>{index++}.</Text>
+                    <Text style={commonStyle.listHeader}>POSITION</Text>
                   </Col>
                   <Col>
-                    <Text style={commonStyle.highlightedText}>{item.player}</Text>
+                    <Text style={commonStyle.listHeader}>PLAYER</Text>
                   </Col>
                   <Col>
-                  < Text style={commonStyle.highlightedText}>{item.points}</Text>
+                    <Text style={commonStyle.listHeader}>POINTS</Text>
                   </Col>
-                </ListItem>}>          
+                </ListItem>
               </List>
 
-          </Content>
+              <List dataArray={this.state.data}
+                  renderRow={(item) =>
+                    <ListItem>
+                      <Col>
+                        <Text style={commonStyle.highlightedText}>{index++}.</Text>
+                      </Col>
+                      <Col>
+                        <Text style={commonStyle.highlightedText}>{item.player}</Text>
+                      </Col>
+                      <Col>
+                        <Text style={commonStyle.highlightedText}>{item.points}</Text>
+                      </Col>
+                    </ListItem>}>          
+              </List>
+
+            </Content>
+          </ImageBackground>
         </Container>
       </StyleProvider>
     );

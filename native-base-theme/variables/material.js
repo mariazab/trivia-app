@@ -3,6 +3,7 @@
 import color from "color";
 
 import { Platform, Dimensions, PixelRatio } from "react-native";
+import { themeColors } from '../../src/styles/themeVariables';
 
 const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
@@ -11,10 +12,16 @@ const platformStyle = "material";
 const isIphoneX =
   platform === "ios" && (deviceHeight === 812 || deviceWidth === 812);
 
-const primaryColor = '#38b6ff';
-const primaryColorDark = '#277fb2';
-const primaryColorLight = '#5fc4ff'
-const secondaryColor = '#FFDE59';
+const primaryColor = themeColors.primaryColor;
+const primaryColorDark = themeColors.primaryColorDark;
+const primaryColorLight = themeColors.primaryColorLight;
+const secondaryColor = themeColors.secondaryColor;
+const secondaryColorDark = themeColors.secondaryColorDark;
+const secondaryColorLight = themeColors.secondaryColorLight;
+const accentColor = themeColors.accentColor;
+const accentColorDark = themeColors.accentColorDark;
+const accentColorLight = themeColors.accentColorLight;
+const successColor = themeColors.rightColor;
 
 export default {
   platformStyle,
@@ -82,7 +89,7 @@ export default {
     return this.fontSizeBase * 0.8;
   },
   get borderRadiusLarge() {
-    return this.fontSizeBase * 0.8;
+    return this.fontSizeBase * 0.3;
   },
   get iconSizeLarge() {
     return this.iconFontSize * 1.5;
@@ -112,9 +119,9 @@ export default {
   // Color
   brandPrimary: "#3F51B5",
   brandInfo: "#3F57D3",
-  brandSuccess: "#5cb85c",
+  brandSuccess: this.successColor, //"#5cb85c",
   brandDanger: "#d9534f",
-  brandWarning: "#f0ad4e",
+  brandWarning: "#000", //this.secondaryColor, //"#f0ad4e",
   brandDark: "#000",
   brandLight: "#f4f4f4",
 
@@ -186,7 +193,7 @@ export default {
   inputErrorBorderColor: "#ed2f2f",
   inputHeightBase: 50,
   get inputColor() {
-    return this.textColor;
+    return this.inverseTextColor;
   },
   get inputColorPlaceholder() {
     return "#575757";
@@ -201,7 +208,7 @@ export default {
 
   // List
   listBg: "transparent",
-  listBorderColor: "transparent",
+  listBorderColor: "#000000",
   listDividerBg: primaryColor,
   listBtnUnderlayColor: "#DDD",
   listItemPadding: 0,

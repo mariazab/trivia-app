@@ -1,13 +1,16 @@
 import React from 'react';
-import { StyleSheet, Alert, StatusBar, } from 'react-native';
+import { StyleSheet, Alert, StatusBar, ImageBackground, Easing } from 'react-native';
 import { Container, Content, Button, Card, CardItem, Text, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import {NavigationActions} from 'react-navigation';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import LoadingScreen from '../components/LoadingScreen';
 import MultipleQuestion from '../components/MultipleQuestion';
 import BooleanQuestion from '../components/BooleanQuestion';
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
+import {themeColors} from '../styles/themeVariables';
+import { commonStyle } from '../styles/commonStyle';
 
 export default class App extends React.Component {
 
@@ -15,6 +18,10 @@ export default class App extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.circularProgress = React.createRef();
+    this.text = React.createRef();
+    
     this.state = ({
       level: "",
       category: "",
@@ -28,12 +35,13 @@ export default class App extends React.Component {
       counter: 0,
       points: 0,
       loading: true,
-      button0Style: styles.normalButton,
-      button1Style: styles.normalButton,
-      button2Style: styles.normalButton,
-      button3Style: styles.normalButton,
+      button0Style: gradientColors.normalButton,
+      button1Style: gradientColors.normalButton,
+      button2Style: gradientColors.normalButton,
+      button3Style: gradientColors.normalButton,
       checkingAnswer: false,
-    })
+    });
+    
   }
 
   componentWillMount() {
@@ -41,23 +49,25 @@ export default class App extends React.Component {
     this.getLevelAndCategory();
   }
 
-  componentDidMount() {
-    //console.log("Category: " + this.state.category);
-    //console.log("Level: " + this.state.level);
-
+  componentDidMount = () => {
     //Set the base url
     let url = "https://opentdb.com/api.php?amount=10&category=" + this.state.category;
 
     //Append level to the url if the level is not random
-      if (this.state.level !== "random") {
+      if (this.state.level !== "random levels") {
         url += "&difficulty=" + this.state.level;
       }
     
     url += "&encode=url3986";
 
-    console.log(url);
     //Fetch the questions from the created url
     this.fetchQuestions(url);
+    
+    //NOT WORKING REF
+    //let progress = this.circularProgress;
+    //console.log(progress);
+    //this.circularProgress.animate(100, 8000, Easing.quad); // Will fill the progress bar linearly in 8 seconds
+    
   }
 
   //Get and save level and category chosen by user
@@ -72,7 +82,7 @@ export default class App extends React.Component {
 
   //Fetch the questions and save them
   fetchQuestions = (url) => {
-    //console.log(url);
+    console.log(url);
    
     fetch(url)
       .then((response) => response.json())
@@ -89,12 +99,13 @@ export default class App extends React.Component {
 
   //Set the state to show current question 
   setCurrentQuestion = () => {
+
     //Reset styles of the buttons and set checkingAnswer to false to enable buttons
     this.setState({
-      button0Style: styles.normalButton,
-      button1Style: styles.normalButton,
-      button2Style: styles.normalButton,
-      button3Style: styles.normalButton,
+      button0Style: gradientColors.normalButton,
+      button1Style: gradientColors.normalButton,
+      button2Style: gradientColors.normalButton,
+      button3Style: gradientColors.normalButton,
       checkingAnswer: false,
     });
     
@@ -165,14 +176,17 @@ export default class App extends React.Component {
 
       //If the answer is correct, add points based on level of the question
       if(chosenAnswer == this.state.correctAnswer) {
-        this.addPoints(level);
+        setTimeout(function () {
+          that.addPoints(level);
+            }, 1000
+        );
         isCorrect = true;
       }
-
+      
       //After 1,5s change the style of chosen button, to show whether the answer was correct or not
       setTimeout(function () {
         that.showIfRightOrWrong(index, isCorrect);
-          }, 1500
+        }, 700
       );
     }
   }
@@ -182,37 +196,25 @@ export default class App extends React.Component {
     switch (index) {
       case 0:
         this.setState({
-          button0Style: styles.selectedButton,
-          button1Style: styles.disabledButton,
-          button2Style: styles.disabledButton,
-          button3Style: styles.disabledButton,
+          button0Style: gradientColors.selectedButton,
           checkingAnswer: true
         });
         break;
       case 1:
         this.setState({
-          button1Style: styles.selectedButton,
-          button0Style: styles.disabledButton,
-          button2Style: styles.disabledButton,
-          button3Style: styles.disabledButton,
+          button1Style: gradientColors.selectedButton,
           checkingAnswer: true
         });
         break;
       case 2:
         this.setState({
-          button2Style: styles.selectedButton,
-          button0Style: styles.disabledButton,
-          button1Style: styles.disabledButton,
-          button3Style: styles.disabledButton,
+          button2Style: gradientColors.selectedButton,
           checkingAnswer: true
         });
         break;
       case 3:
         this.setState({
-          button3Style: styles.selectedButton,
-          button0Style: styles.disabledButton,
-          button1Style: styles.disabledButton,
-          button2Style: styles.disabledButton,
+          button3Style: gradientColors.selectedButton,
           checkingAnswer: true
         });
         break;
@@ -245,17 +247,18 @@ export default class App extends React.Component {
     let style;
     let that = this;
     if(isCorrect) {
-      style = styles.correctButton;
+      style = gradientColors.correctButton;
     
     //If the answer was wrong, show the correct answer
     } else {
-      style = styles.wrongButton;
+      style = gradientColors.wrongButton;
 
       //After 1 s show the correct answer
-      setTimeout(function () {
-       that.showCorrectAnswer();
-        }, 1000
-      );
+      // setTimeout(function () {
+      //  that.showCorrectAnswer();
+      //   }, 500
+      // );
+      this.showCorrectAnswer();
     }
 
     switch (id) {
@@ -283,10 +286,10 @@ export default class App extends React.Component {
         break;
     }
 
-    //After 2,5 s change the question to the next one
+    //After 1 s change the question to the next one
     setTimeout(function () {
       that.setCurrentQuestion();
-        }, 2000
+        }, 1000
     );
   }
 
@@ -303,27 +306,26 @@ export default class App extends React.Component {
         correctAnswerIndex = i;
       }
     }
-    //console.log("Correct answer is " + answers[correctAnswerIndex] + " index: " + correctAnswerIndex);
 
     switch (correctAnswerIndex) {
       case 0:
         this.setState({
-          button0Style: styles.correctButton
+          button0Style: gradientColors.correctButton
         });
         break;
       case 1:
         this.setState({
-          button1Style: styles.correctButton
+          button1Style: gradientColors.correctButton
         });
         break;
       case 2:
         this.setState({
-          button2Style: styles.correctButton
+          button2Style: gradientColors.correctButton
         });
         break;
       case 3:
         this.setState({
-          button3Style: styles.correctButton
+          button3Style: gradientColors.correctButton
         });
         break;
       default: 
@@ -340,18 +342,18 @@ export default class App extends React.Component {
     //Show the correct grid, based on the length of the answers array
     if(answers.length == 2) {
       answersGrid = <BooleanQuestion 
-        buttonStyle0={this.state.button0Style} 
-        buttonStyle1={this.state.button1Style} 
-        answers={answers} 
-        click={this.checkAnswer} />
+                        buttonStyle0={this.state.button0Style} 
+                        buttonStyle1={this.state.button1Style} 
+                        answers={answers} 
+                        click={this.checkAnswer} />
     } else {
       answersGrid = <MultipleQuestion 
-        buttonStyle0={this.state.button0Style} 
-        buttonStyle1={this.state.button1Style} 
-        buttonStyle2={this.state.button2Style} 
-        buttonStyle3={this.state.button3Style} 
-        answers={answers} 
-        click={this.checkAnswer} />
+                        buttonStyle0={this.state.button0Style} 
+                        buttonStyle1={this.state.button1Style} 
+                        buttonStyle2={this.state.button2Style} 
+                        buttonStyle3={this.state.button3Style} 
+                        answers={answers} 
+                        click={this.checkAnswer} />
     }
 
     //Show loading screen, if the questions are still being fetched
@@ -361,46 +363,63 @@ export default class App extends React.Component {
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
-        {/* <StatusBar hidden={true} /> */}
-          <Grid style={styles.container}>
-            <Col>
-              <Text style={styles.header}>Question {this.state.counter}/10</Text>
+          <ImageBackground source={require('../../assets/background2.png')} style={{width: '100%', height: '100%'}} >
+          {/* <StatusBar hidden={true} /> */}
+            <Grid style={commonStyle.container}>              
 
-              <Card>
-                <CardItem header bordered>
-                  <Col>
-                    <Text>Category: {this.state.currentCategory} </Text>
-                  </Col>
-                  <Col style={{width: 20}}></Col>
-                  <Col style={styles.cardColumn2}>
-                    <Text>Level: {this.state.currentLevel} </Text>
-                    <Text>Points: {this.state.points} </Text>
-                  </Col>
-                </CardItem>
-                <CardItem header bordered>
-                  <Text>{this.state.currentQuestion}</Text>
-                </CardItem>
-              </Card>
+              <Col>
+                <Text style={styles.header} ref={(ref) => this.text = ref}>Question {this.state.counter}/10</Text>
+
+                {/* <AnimatedCircularProgress
+                    size={100}
+                    width={15}
+                    fill={200}
+                    tintColor="#00e0ff"
+                    onAnimationComplete={() => console.log('onAnimationComplete ' + new Date())}
+                    backgroundColor="#3d5875"
+                    ref={(ref) => this.circularProgress = ref} /> */}
+
+                <Card>
+                  <CardItem bordered>
+                    <Col>
+                      <Text style={{fontFamily: 'Raleway-SemiBold'}}>Category: {this.state.currentCategory} </Text>
+                    </Col>
+                    <Col style={{width: 20}}></Col>
+                    <Col style={styles.cardColumn2}>
+                      <Text style={{fontFamily: 'Raleway-SemiBold'}}>Level: {this.state.currentLevel} </Text>
+                      <Text style={{fontFamily: 'Raleway-SemiBold'}}>Points: {this.state.points} </Text>
+                    </Col>
+                  </CardItem>
+                  <CardItem bordered>
+                    <Text style={{fontFamily: 'Raleway-SemiBold'}}>{this.state.currentQuestion}</Text>
+                  </CardItem>
+                </Card>
+            
+                {answersGrid}
               
-              {answersGrid}
+              
+              </Col>
+            </Grid>
 
-            </Col>
-          </Grid>
-
-          {/* Next button only for testing purposes, to be deleted... */}
-          <Button onPress={()=>navigate('End', {points: this.state.points})}>
-            <Text>Next</Text>
-          </Button>
+            {/* Next button only for testing purposes, to be deleted... */}
+            <Button onPress={()=>navigate('End', {points: this.state.points})}>
+              <Text>Next</Text>
+            </Button>
+          </ImageBackground>
         </Container>
       </StyleProvider>
     );
   }
 }
 
+const gradientColors = {
+  normalButton: [themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark],
+  selectedButton: [themeColors.secondaryColorDark, themeColors.secondaryColor, themeColors.secondaryColorDark],
+  correctButton: [themeColors.rightColorDark, themeColors.rightColor, themeColors.rightColorDark],
+  wrongButton: [themeColors.wrongColorDark, themeColors.wrongColor, themeColors.wrongColorDark]
+};
+
 const styles = StyleSheet.create({
-  container: {
-   margin: "2%",
-  },
   cardColumn1: {
     marginRight: "5%",
     marginLeft: 0,
@@ -420,29 +439,4 @@ const styles = StyleSheet.create({
     margin: '2%',
     textAlign: 'center',
   },
-  normalButton: {
-    height: 120,
-    width: 120,
-    backgroundColor: "black"
-  },
-  selectedButton: {
-    height: 120,
-    width: 120,
-    backgroundColor: "#EDE337"
-  },
-  correctButton: {
-    height: 120,
-    width: 120,
-    backgroundColor: "#0BCB00"
-  },
-  wrongButton: {
-    height: 120,
-    width: 120,
-    backgroundColor: "#E50F00"
-  },
-  disabledButton: {
-    height: 120,
-    width: 120,
-    backgroundColor: "#AAAAAA"
-  }
 });

@@ -1,88 +1,165 @@
 import React from 'react';
-import { Alert, StatusBar } from 'react-native';
-import { Container, Content, Button, Text, StyleProvider } from 'native-base';
+import { Alert, StatusBar, ImageBackground, TouchableOpacity } from 'react-native';
+import { Container, Content, Button, Text, StyleProvider, Item, Input, Icon, Label, Form, Header, Left, Body, Title } from 'native-base';
+import { LinearGradient } from "expo";
+import { Col, Row, Grid } from 'react-native-easy-grid';
 import { commonStyle } from '../styles/commonStyle';
+import {themeColors, opacity} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
 
 export default class ChooseCategory extends React.Component {
 
   static navigationOptions = {header: null};
-  // static navigationOptions = {
-  //   title: "Category", 
-  //   headerStyle: {
-  //     height: 40, 
-  //     backgroundColor: '#38b6ff', 
-  //     borderWidth: 0
-  //   }
-  // };
 
   constructor(props) {
     super(props);
-    this.state = {categories: [], loading: true};
+    this.state = {categories: [], searchValue: "", results: []};
   }
 
   componentDidMount() {
-    //this.fetchCategories();
+    this.getCategories();
+  }
+
+  getCategories = () => {
+    //console.log("getting categories..");
     const params = this.props.navigation.state.params;
-    this.setState({categories: params.categories})
+    //console.log(params.categories);
+    this.setState({categories: params.categories, results: params.categories});
+    //console.log(this.state.categories);
   }
 
+  //Search based on user's input
+  search = () => {
+    let searchValue = this.state.searchValue;
+    // console.log(this.state.searchValue);
 
-  fetchCategories = () => {
-    const url = "https://opentdb.com/api_category.php";
+    let results = [];
+    let categories = this.state.categories;
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((responseJson) => {
-        //console.log(responseJson.trivia_categories);
-        //console.log(responseJson.trivia_categories.sort(this.compare));
-        this.setState({categories: responseJson.trivia_categories.sort(this.compare), loading: false})
-      })
-      .catch((error) => {
-        Alert.alert(error);
-      });
+    searchValue.trim();
+
+    //If the input is not empty, search for matching categories
+    if(searchValue !== "") {
+      for (let i = 0; i < categories.length; i++) {
+        if(categories[i].name.includes(searchValue)) {
+          results.push(categories[i]);
+        }
+      }
+    this.setState({results: results});
+    }
   }
 
-  //Sorting objects alphabeticaly based on name
-  compare(a,b) {
-    if (a.name < b.name)
-      return -1;
-    if (a.name > b.name)
-      return 1;
-    return 0;
+  //Reset categories to default
+  reset = () => {
+    let categories = this.state.categories;
+    this.setState({results: categories});
   }
 
   render() {
     const { navigate } = this.props.navigation;
 
-    let buttons = this.state.categories.map((item, index) => 
-                    <Button dark 
-                            rounded 
-                            block 
-                            style={commonStyle.button} 
-                            key={index} 
-                            onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: index})} >
+    let buttons = this.state.results.map((item, index) => 
+          <TouchableOpacity 
+              activeOpacity={opacity}
+              style={commonStyle.listButtons} 
+              key={index} 
+              onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: item.id})} >
 
-                        <Text>{item.name}</Text>
+                <LinearGradient
+                    colors={[themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark]}
+                    style={commonStyle.linearGradient}>
 
-                    </Button>);
+                      <Text style={commonStyle.buttonText}>{item.name}</Text>
+
+                </LinearGradient>
+
+          </TouchableOpacity>);
 
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
-        {/* <StatusBar hidden={true} /> */}
-          <Content style={commonStyle.container}>
+          <ImageBackground source={require('../../assets/background2.png')} style={{width: '100%', height: '100%'}} >
+            {/* <StatusBar hidden={true} /> */}
 
-            <Text style={commonStyle.header}>Choose Your Category:</Text>
+            <Header transparent style={{height: 120}} >
+              <Left>
+                <Button transparent onPress={() => navigate("Home")}>
+                  <Icon name="arrow-back" style={{color: themeColors.secondaryColor}}/>
+                </Button>
+              </Left>
+              <Body>
+                <Title style={commonStyle.header}>Choose Your</Title>
+                <Title style={commonStyle.header}>Category:</Title>
+              </Body>
+            </Header>
+            
+            <Content style={commonStyle.container}>
 
-            <Button dark rounded block style={commonStyle.button} onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: -1})} >
-              <Text>Random</Text>
-            </Button>
+              <Form style={commonStyle.form}>
+                <Item floatingLabel>
+                  <Label style={{color: "#fff"}}>Search for category</Label>
+                  <Input onChangeText={(searchValue) => this.setState({searchValue})} value={this.state.searchValue} />
+                </Item>
+              </Form>
 
-            {buttons}
+              <Grid>
+                <Col style={commonStyle.content}>
+                  <Row>
 
-          </Content>
+                    <TouchableOpacity 
+                        activeOpacity={opacity}
+                        style={commonStyle.button} 
+                        onPress={this.search}>
+
+                          <LinearGradient
+                              colors={[themeColors.secondaryColorDark, themeColors.secondaryColor, themeColors.secondaryColorDark]}
+                              style={commonStyle.linearGradient}>
+
+                                <Text style={commonStyle.darkButtonText}>Search</Text>
+
+                          </LinearGradient>
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        activeOpacity={opacity}
+                        style={commonStyle.button} 
+                        onPress={this.reset}>
+
+                          <LinearGradient
+                              colors={[themeColors.secondaryColorDark, themeColors.secondaryColor, themeColors.secondaryColorDark]}
+                              style={commonStyle.linearGradient}>
+
+                                <Text style={commonStyle.darkButtonText}>Reset</Text>
+
+                          </LinearGradient>
+
+                    </TouchableOpacity>
+          
+                  </Row>
+                </Col>
+              </Grid>
+
+              <TouchableOpacity 
+                  activeOpacity={opacity}
+                  style={commonStyle.listButtons} 
+                  onPress={() => navigate("ChooseDifficulty", {categories: this.state.categories, id: -1})}>
+
+                    <LinearGradient
+                        colors={[themeColors.accentColorDark, themeColors.accentColor, themeColors.accentColorDark]}
+                        style={commonStyle.linearGradient}>
+
+                          <Text style={commonStyle.buttonText}>Random Categories</Text>
+
+                    </LinearGradient>
+
+              </TouchableOpacity>        
+
+              {buttons}
+
+            </Content>
+          </ImageBackground>
         </Container>
       </StyleProvider>
     );

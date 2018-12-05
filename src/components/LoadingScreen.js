@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar, Image, ActivityIndicator, ImageBackground } from 'react-native';
 import { Container, Content, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
+
 import { commonStyle } from '../styles/commonStyle';
 import { themeColors } from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';

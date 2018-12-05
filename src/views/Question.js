@@ -1,16 +1,19 @@
 import React from 'react';
-import { StyleSheet, Alert, StatusBar, ImageBackground, Easing } from 'react-native';
+import { StyleSheet, Alert, StatusBar, ImageBackground } from 'react-native';
 import { Container, Content, Button, Card, CardItem, Text, StyleProvider } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import {NavigationActions} from 'react-navigation';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import base64 from 'react-native-base64';
+
 import LoadingScreen from '../components/LoadingScreen';
 import MultipleQuestion from '../components/MultipleQuestion';
 import BooleanQuestion from '../components/BooleanQuestion';
+
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/material';
 import {themeColors} from '../styles/themeVariables';
 import { commonStyle } from '../styles/commonStyle';
+
 
 export default class App extends React.Component {
 
@@ -18,9 +21,6 @@ export default class App extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.circularProgress = React.createRef();
-    this.text = React.createRef();
     
     this.state = ({
       level: "",
@@ -40,6 +40,7 @@ export default class App extends React.Component {
       button2Style: gradientColors.normalButton,
       button3Style: gradientColors.normalButton,
       checkingAnswer: false,
+      responseOk: false,
     });
     
   }
@@ -58,16 +59,18 @@ export default class App extends React.Component {
         url += "&difficulty=" + this.state.level;
       }
     
-    url += "&encode=url3986";
+    //url += "&encode=url3986";
+    url += "&encode=base64";
 
     //Fetch the questions from the created url
     this.fetchQuestions(url);
-    
-    //NOT WORKING REF
-    //let progress = this.circularProgress;
-    //console.log(progress);
-    //this.circularProgress.animate(100, 8000, Easing.quad); // Will fill the progress bar linearly in 8 seconds
-    
+  }
+
+  //Clear all timeouts 
+  componentWillUnmount = () => {
+    clearTimeout(this.addPointsTimeout);
+    clearTimeout(this.rightOrWrongTimeout);
+    clearTimeout(this.nextQuestionTimeout);
   }
 
   //Get and save level and category chosen by user
@@ -81,16 +84,34 @@ export default class App extends React.Component {
   }
 
   //Fetch the questions and save them
+  //show alert if there was an error and navigate to choosing category
   fetchQuestions = (url) => {
-    console.log(url);
    
     fetch(url)
       .then((response) => response.json())
       .then((responseJson) => {
-        //console.log(responseJson.results);
+        //console.log(responseJson);
+        
+        if (responseJson.response_code === 0) {
+          this.setState({questions: responseJson.results, loading: false, responseOk: true});
+          this.setCurrentQuestion();
 
-        this.setState({questions: responseJson.results, loading: false})
-        this.setCurrentQuestion();
+        } else {
+          if (responseJson.response_code == 1) {
+
+            this.setState({loading: false, responseOk: false});
+            Alert.alert('Not enough questions available for category/level.', 'Please try again.');
+
+          } else {
+            Alert.alert('Error while retrieving questions', 'Please try again.');
+          }
+
+          const navigateAction = NavigationActions.navigate({
+            routeName: 'ChooseCategory',
+            });
+      
+            this.props.navigation.dispatch(navigateAction);
+          }
       })
       .catch((error) => {
         Alert.alert(error);
@@ -112,16 +133,16 @@ export default class App extends React.Component {
     //Check if there are still questions left
     if(this.state.counter < 10) {
       let answersArray = [];
-      let answer1 = unescape(this.state.questions[this.state.counter].correct_answer);
-      let answer2 = unescape(this.state.questions[this.state.counter].incorrect_answers[0]);
+      let answer1 = base64.decode(this.state.questions[this.state.counter].correct_answer);
+      let answer2 = base64.decode(this.state.questions[this.state.counter].incorrect_answers[0]);
 
       answersArray.push(answer1);
       answersArray.push(answer2);
       
       //Add the rest of the answers to the array if the type of the question is multiple
-      if(this.state.questions[this.state.counter].type == "multiple"){
-        let answer3 = unescape(this.state.questions[this.state.counter].incorrect_answers[1]);
-        let answer4 = unescape(this.state.questions[this.state.counter].incorrect_answers[2]);
+      if(base64.decode(this.state.questions[this.state.counter].type) == "multiple"){
+        let answer3 = base64.decode(this.state.questions[this.state.counter].incorrect_answers[1]);
+        let answer4 = base64.decode(this.state.questions[this.state.counter].incorrect_answers[2]);
 
         answersArray.push(answer3);
         answersArray.push(answer4);
@@ -135,12 +156,12 @@ export default class App extends React.Component {
       }
 
       this.setState({
-        currentQuestion: unescape(this.state.questions[this.state.counter].question),
-        currentCategory: unescape(this.state.questions[this.state.counter].category),
-        currentLevel: unescape(this.state.questions[this.state.counter].difficulty),
-        correctAnswer: unescape(answer1),
-        currentType: this.state.questions[this.state.counter].type,
-        answers: answersArray
+        currentQuestion: base64.decode(this.state.questions[this.state.counter].question),
+        currentCategory: base64.decode(this.state.questions[this.state.counter].category),
+        currentLevel: base64.decode(this.state.questions[this.state.counter].difficulty),
+        correctAnswer: answer1,
+        currentType: base64.decode(this.state.questions[this.state.counter].type),
+        answers: answersArray,
       });
 
       //Increment the counter, to track the number of question
@@ -151,7 +172,6 @@ export default class App extends React.Component {
     // If there are no more questions, go to the summary view, EndGame
     //send points as params
     } else {
-      //console.log(this.state.points);
       const navigateAction = NavigationActions.navigate({
       routeName: 'End',
       params: {points: this.state.points},
@@ -176,15 +196,15 @@ export default class App extends React.Component {
 
       //If the answer is correct, add points based on level of the question
       if(chosenAnswer == this.state.correctAnswer) {
-        setTimeout(function () {
+        this.addPointsTimeout = setTimeout(function () {
           that.addPoints(level);
             }, 1000
         );
         isCorrect = true;
       }
       
-      //After 1,5s change the style of chosen button, to show whether the answer was correct or not
-      setTimeout(function () {
+      //After 700ms change the style of chosen button, to show whether the answer was correct or not
+      this.rightOrWrongTimeout = setTimeout(function () {
         that.showIfRightOrWrong(index, isCorrect);
         }, 700
       );
@@ -253,11 +273,6 @@ export default class App extends React.Component {
     } else {
       style = gradientColors.wrongButton;
 
-      //After 1 s show the correct answer
-      // setTimeout(function () {
-      //  that.showCorrectAnswer();
-      //   }, 500
-      // );
       this.showCorrectAnswer();
     }
 
@@ -287,7 +302,7 @@ export default class App extends React.Component {
     }
 
     //After 1 s change the question to the next one
-    setTimeout(function () {
+    this.nextQuestionTimeout = setTimeout(function () {
       that.setCurrentQuestion();
         }, 1000
     );
@@ -357,9 +372,9 @@ export default class App extends React.Component {
     }
 
     //Show loading screen, if the questions are still being fetched
-    if (this.state.loading) {
+    if (this.state.loading || !this.state.responseOk) {
       return <LoadingScreen />;}
-
+      
     return (
       <StyleProvider style={getTheme(material)}>
         <Container>
@@ -368,35 +383,24 @@ export default class App extends React.Component {
             <Grid style={commonStyle.container}>              
 
               <Col>
-                <Text style={styles.header} ref={(ref) => this.text = ref}>Question {this.state.counter}/10</Text>
-
-                {/* <AnimatedCircularProgress
-                    size={100}
-                    width={15}
-                    fill={200}
-                    tintColor="#00e0ff"
-                    onAnimationComplete={() => console.log('onAnimationComplete ' + new Date())}
-                    backgroundColor="#3d5875"
-                    ref={(ref) => this.circularProgress = ref} /> */}
-
+                <Text style={styles.header}>Question {this.state.counter}/10</Text>
                 <Card>
                   <CardItem bordered>
                     <Col>
-                      <Text style={{fontFamily: 'Raleway-SemiBold'}}>Category: {this.state.currentCategory} </Text>
+                      <Text style={styles.cardText}>Category: {this.state.currentCategory} </Text>
                     </Col>
                     <Col style={{width: 20}}></Col>
                     <Col style={styles.cardColumn2}>
-                      <Text style={{fontFamily: 'Raleway-SemiBold'}}>Level: {this.state.currentLevel} </Text>
-                      <Text style={{fontFamily: 'Raleway-SemiBold'}}>Points: {this.state.points} </Text>
+                      <Text style={styles.cardText}>Level: {this.state.currentLevel} </Text>
+                      <Text style={styles.cardText}>Points: {this.state.points} </Text>
                     </Col>
                   </CardItem>
                   <CardItem bordered>
-                    <Text style={{fontFamily: 'Raleway-SemiBold'}}>{this.state.currentQuestion}</Text>
+                    <Text style={styles.cardText}>{this.state.currentQuestion}</Text>
                   </CardItem>
                 </Card>
             
                 {answersGrid}
-              
               
               </Col>
             </Grid>
@@ -426,6 +430,9 @@ const styles = StyleSheet.create({
   },
   cardColumn2: {
     marginLeft: "5%",
+  },
+  cardText: {
+    fontFamily: 'Raleway-SemiBold',
   },
   button: {
     height: 120,

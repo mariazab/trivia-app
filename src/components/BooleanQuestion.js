@@ -4,6 +4,7 @@ import { StyleSheet, View, Alert, StatusBar, TouchableOpacity } from 'react-nati
 import { Container, Header, Left, Right, Content, Title, Button, Card, CardItem, Text, Body } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import { LinearGradient } from "expo";
+
 import { commonStyle } from '../styles/commonStyle';
 import {themeColors, opacity} from '../styles/themeVariables';
 

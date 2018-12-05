@@ -3,13 +3,11 @@ import { themeColors } from './themeVariables';
 
 export const commonStyle = {
     container: {
-     margin: "2%",
-     
+     margin: "2%"
     },
     content: {
       justifyContent: 'center',
       alignItems: 'center',
-      //marginTop: '30%',
       width: "100%",
     },
     logo: {
@@ -49,8 +47,6 @@ export const commonStyle = {
         fontSize: 35,
         fontFamily: 'Atma-SemiBold',
         color: '#FFDE59',
-        //margin: '2%',
-        //textAlign: 'center',
     },
     gameFeedback: {
       fontSize: 35,
@@ -70,7 +66,6 @@ export const commonStyle = {
       alignItems: 'center', 
       borderRadius: 5,
       width: "100%",
-      //height: "100%",
     },
     linearGradientForAnswers: {
       padding: 15, 

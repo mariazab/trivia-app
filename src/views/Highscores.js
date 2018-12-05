@@ -4,7 +4,9 @@ import { Container, Content, Button, Text, List, ListItem, StyleProvider, Icon, 
 import { Col } from 'react-native-easy-grid';
 import * as firebase from 'firebase';
 import {firebaseInitApp} from '../database/firebase-config';
+
 import LoadingScreen from '../components/LoadingScreen';
+
 import { commonStyle } from '../styles/commonStyle';
 import {themeColors} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
@@ -20,6 +22,18 @@ export default class Highscores extends React.Component {
     super(props);
     this.itemsRef = firebaseApp.database().ref('scores');
     this.state = {data: [], loading: true};
+  }
+
+  componentDidMount() {
+    //Ignore setting a timer error from database until there's a solution
+    console.ignoredYellowBox = [
+      'Setting a timer'
+    ]
+  }
+
+  //Disconnect firebase ref
+  componentWillUnmount() {
+    this.itemsRef.off();
   }
 
   //Get data from the database

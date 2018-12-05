@@ -27,13 +27,6 @@ export default class MainScreen extends React.Component {
       'Raleway-SemiBold': require('../../assets/fonts/Raleway-SemiBold.ttf'),
       'Atma-SemiBold': require('../../assets/fonts/Atma-SemiBold.ttf'),
     });
-    let that = this;
-    
-     //After 1,5 s fetch the categories and set loading to false
-    //  setTimeout(function () {
-    //   that.fetchCategories();
-    //     }, 1500
-    // );
 
     this.fetchCategories();
   }
@@ -44,8 +37,6 @@ export default class MainScreen extends React.Component {
     fetch(url)
       .then((response) => response.json())
       .then((responseJson) => {
-        //console.log(responseJson.trivia_categories);
-        //console.log(responseJson.trivia_categories.sort(this.compare));
         this.setState({categories: responseJson.trivia_categories.sort(this.compare), loading: false})
       })
       .catch((error) => {
@@ -64,8 +55,7 @@ export default class MainScreen extends React.Component {
 
   render() {
     const { navigate } = this.props.navigation;
-    const uri = "../../assets/icon.png";
-
+    
     if (this.state.loading) {
       return <AppLoading />;}
 

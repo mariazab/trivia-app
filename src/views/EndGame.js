@@ -5,6 +5,7 @@ import { Col, Row, Grid } from 'react-native-easy-grid';
 import { LinearGradient } from 'expo';
 import * as firebase from 'firebase';
 import {firebaseInitApp} from '../database/firebase-config';
+
 import { commonStyle } from '../styles/commonStyle';
 import {themeColors, opacity} from '../styles/themeVariables';
 import getTheme from '../../native-base-theme/components';
@@ -26,6 +27,16 @@ export default class EndGame extends React.Component {
     const params = this.props.navigation.state.params;
     this.setState({points: params.points});
     this.getData(this.itemsRef);
+
+    //Ignore setting a timer error from database until there's a solution
+    console.ignoredYellowBox = [
+      'Setting a timer'
+    ]
+  }
+
+  //Disconnect firebase ref
+  componentWillUnmount() {
+      this.itemsRef.off();
   }
 
   //Get the data from the database
@@ -78,7 +89,7 @@ export default class EndGame extends React.Component {
             'Score with that name already exists',
             'Do you want to set this as your new highscore?',
             [
-              {text: 'CANCEL', onPress: () => console.log("cancel clicked")},
+              {text: 'CANCEL',},
               {text: 'UPDATE', onPress: () => {this.updateScore(this.state.existingPlayerId)}},
             ],
             { cancelable: false }
@@ -105,9 +116,9 @@ export default class EndGame extends React.Component {
   checkIfPlayerExist(player) {
     let scores = this.state.data
     let i;
+
     for(i = 0; i < scores.length; i++) {
       if(player === scores[i].player) {
-        console.log("player id.." + scores[i].id);
         this.setState({existingPlayerId: scores[i].id});
         return scores[i].points;
       }

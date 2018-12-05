@@ -21,18 +21,15 @@ export default class ChooseCategory extends React.Component {
     this.getCategories();
   }
 
+  //Get the list of categories fetched in the previous component
   getCategories = () => {
-    //console.log("getting categories..");
     const params = this.props.navigation.state.params;
-    //console.log(params.categories);
     this.setState({categories: params.categories, results: params.categories});
-    //console.log(this.state.categories);
   }
 
-  //Search based on user's input
+  //Search categories based on user's input
   search = () => {
     let searchValue = this.state.searchValue;
-    // console.log(this.state.searchValue);
 
     let results = [];
     let categories = this.state.categories;
@@ -50,7 +47,7 @@ export default class ChooseCategory extends React.Component {
     }
   }
 
-  //Reset categories to default
+  //Reset categories to the default list
   reset = () => {
     let categories = this.state.categories;
     this.setState({results: categories});

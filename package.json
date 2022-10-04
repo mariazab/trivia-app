@@ -9,7 +9,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "expo": "^30.0.1",
+    "expo": "^46.0.14",
     "firebase": "^5.5.7",
     "native-base": "^2.8.1",
     "prop-types": "^15.6.2",
